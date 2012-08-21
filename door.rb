@@ -1,4 +1,4 @@
-require 'map'
+require './map'
 
 class Door
   attr_accessor :pos
@@ -19,30 +19,30 @@ class Door
       @state = :opening
       @opened_at = Time.now.to_i
     end
-    
+
     if !self.open? && @state == :opening
       @pos += OPEN_CLOSE_STEP
     end
   end
-  
+
   def open?
     return @pos == Map::GRID_WIDTH_HEIGHT
   end
-  
+
   def close!
     if self.open?
       @state = :closing
     end
-    
+
     if !self.closed? && @state == :closing
       @pos -= OPEN_CLOSE_STEP
     end
   end
-  
+
   def closed?
     return @pos == 0
   end
-  
+
   def interact
     if @state == :opening
       self.open!
@@ -50,7 +50,7 @@ class Door
       self.close!
     end
   end
-  
+
   def inspect
     if open?
       "#<Door:#{object_id} open>"
@@ -58,5 +58,5 @@ class Door
       "#<Door:#{object_id} open>"
     end
   end
-  
+
 end

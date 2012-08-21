@@ -1,13 +1,13 @@
 require 'rubygems'
 require 'gosu'
-require 'sound'
-require 'weapon'
-require 'map'
+require './sound'
+require './weapon'
+require './map'
 
 module Sprite
   TEX_WIDTH  = 64
   TEX_HEIGHT = 64
-  
+
   attr_accessor :x
   attr_accessor :y
   attr_accessor :window
@@ -17,7 +17,7 @@ end
 
 class SpritePool
   @@files = {}
-  
+
   def self.get(window, file_path, sprite_height = Sprite::TEX_HEIGHT, sprite_width = 1)
     file_path = File.expand_path(file_path)
     if !@@files[file_path]
@@ -28,14 +28,14 @@ class SpritePool
         raise
       end
     end
-    
+
     return @@files[file_path]
   end
 end
 
 class MagicPony
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -46,7 +46,7 @@ end
 
 class Lamp
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -57,7 +57,7 @@ end
 
 class Table
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -68,7 +68,7 @@ end
 
 class TableWithChairs
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -79,7 +79,7 @@ end
 
 class Well
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -90,7 +90,7 @@ end
 
 class BrownBarrel
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -101,7 +101,7 @@ end
 
 class Chandelier
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -112,7 +112,7 @@ end
 
 class DeadGuard
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -123,7 +123,7 @@ end
 
 class Bones
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -134,7 +134,7 @@ end
 
 class Skeleton
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -145,7 +145,7 @@ end
 
 class GreenPlant
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -156,7 +156,7 @@ end
 
 class Flag
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -167,7 +167,7 @@ end
 
 class Armor
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -178,7 +178,7 @@ end
 
 class Vase
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -189,7 +189,7 @@ end
 
 class ColonelSanders
   include Sprite
-  
+
   def initialize(window, x, y)
     @window = window
     @x = x
@@ -202,12 +202,12 @@ end
 # An sprite that interacts with the player when they touch each other.
 class Interactable
   include Sprite
-  
+
   attr_accessor :window
   attr_accessor :x
   attr_accessor :y
   attr_accessor :map
-  
+
   def initialize(window, map, x, y, slices)
     @window = window
     @x = x
@@ -216,7 +216,7 @@ class Interactable
     @slices = slices
     @last_interaction_time = 0
   end
-  
+
   def interact(player)
     if interaction_has_effect?(player)
       @last_interaction_time = Time.now.to_f
@@ -225,7 +225,7 @@ class Interactable
   end
 
   private
-  
+
   def interaction_has_effect?(player)
     # Hack: do not repeatedly interact with player who's standing still.
     if @last_interaction_time + 10 < Time.now.to_f
@@ -236,7 +236,7 @@ class Interactable
       false
     end
   end
-  
+
   def execute_interaction_effect(player)
   end
 end
@@ -248,9 +248,9 @@ class Item < Interactable
     @text  = text
     @sound = SoundPool::get(window, sound_file || 'ammo.ogg')
   end
-  
+
   private
-  
+
   def execute_interaction_effect(player)
     super(player)
     @sound.play
@@ -266,16 +266,16 @@ class Powerup < Item
     super(window, map, x, y, slices, text, sound_file)
     @power_up = power_up
   end
-  
+
   private
-  
+
   def interaction_has_effect?(player)
     super(player) && (
       (@power_up > 0 && player.health < player.max_health) ||
       (@power_up < 0 && player.health > 0)
     )
   end
-  
+
   def execute_interaction_effect(player)
     super(player)
     new_health = player.health + @power_up
@@ -323,7 +323,7 @@ end
 
 class Info < Interactable
   attr_accessor :play_sound
-  
+
   def initialize(window, map, x, y, text = nil, change_bg_song_to = nil, &block)
     super(window, map, x, y, SpritePool::get(window, @image || 'info.png', TEX_HEIGHT))
     @play_sound = true
@@ -332,9 +332,9 @@ class Info < Interactable
     @change_bg_song_to = change_bg_song_to
     @block = block
   end
-  
+
   private
-  
+
   def execute_interaction_effect(player)
     super(player)
     @window.show_text(@text) if @text
@@ -356,9 +356,9 @@ class Phusion < Item
     super(window, map, x, y, SpritePool::get(window, 'phusion_logo.png', TEX_HEIGHT))
     @new_max_health = new_max_health
   end
-  
+
   private
-  
+
   def execute_interaction_effect(player)
     super(player)
     @window.show_text("Phusion: Max HP increased from #{player.max_health} to #{@new_max_health}!")
